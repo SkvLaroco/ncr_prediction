@@ -5,57 +5,53 @@ from prophet import Prophet
 import os
 
 app = Flask(__name__)
-CORS(app)
+CORS(app)  # allow frontend to fetch data
 
-# ✅ ROOT ROUTE (TEST)
+# ✅ ROOT route (test)
 @app.route('/')
 def home():
     return "✅ NCR Forecast API is running"
 
-# ✅ FORECAST ROUTE (NOW SUPPORTS GET + POST)
-@app.route('/forecast', methods=['GET', 'POST'])
+# ✅ FORECAST route
+@app.route('/forecast', methods=['POST', 'GET'])
 def forecast():
-
-    # 👉 If accessed via browser (GET)
     if request.method == 'GET':
         return "⚠️ Use POST method with a CSV file to get forecast."
 
     try:
-        # ✅ CHECK FILE
+        # Check if file exists
         if 'file' not in request.files:
             return jsonify({"error": "No file uploaded"}), 400
 
         file = request.files['file']
         df = pd.read_csv(file)
 
-        # ✅ VALIDATE COLUMNS
+        # Validate required columns
         required_cols = ['Year', 'Total_Enrollees']
         for col in required_cols:
             if col not in df.columns:
                 return jsonify({"error": f"Missing column: {col}"}), 400
 
-        # ✅ VALIDATE NUMERIC
+        # Validate numeric types
         if not pd.api.types.is_numeric_dtype(df['Year']):
             return jsonify({"error": "Year must be numeric"}), 400
-
         if not pd.api.types.is_numeric_dtype(df['Total_Enrollees']):
             return jsonify({"error": "Total_Enrollees must be numeric"}), 400
 
-        # ✅ PREPARE DATA
+        # Prepare data for Prophet
         df['ds'] = pd.to_datetime(df['Year'], format='%Y')
         df['y'] = df['Total_Enrollees']
 
-        # ✅ TRAIN MODEL
         model = Prophet()
         model.fit(df[['ds', 'y']])
 
         future = model.make_future_dataframe(periods=3, freq='YE')
-        forecast = model.predict(future)
+        forecast_df = model.predict(future)
 
-        latest = forecast.iloc[-1]
+        latest = forecast_df.iloc[-1]
         total = int(latest['yhat'])
 
-        # ✅ RESOURCE ALLOCATION
+        # Resource allocation
         academic_rooms = int((total * 0.65) / 40)
         tvl_rooms = int((total * 0.35) / 40)
 
@@ -73,8 +69,7 @@ def forecast():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-
-# ✅ IMPORTANT FOR RENDER
+# ✅ Run Render-ready
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 5000))
+    port = int(os.environ.get("PORT", 5000))  # must use Render dynamic port
     app.run(host='0.0.0.0', port=port)

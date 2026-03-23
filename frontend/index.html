@@ -7,13 +7,16 @@
 
 <body>
 
-<h1>NCR SHS Forecast Dashboard</h1>
+<h1>NCR SHS Enrollment Forecast Dashboard</h1>
 
 <div class="container">
 
+    <!-- UPLOAD -->
     <div class="card">
         <h2>Upload Dataset</h2>
+
         <input type="file" id="file" accept=".csv">
+
         <button onclick="runForecast()">Run Forecast</button>
 
         <p><b>Required format:</b></p>
@@ -21,16 +24,19 @@
 Year,Total_Enrollees
 2020,300000
 2021,320000
+2022,330000
         </pre>
     </div>
 
+    <!-- RESULT -->
     <div class="card">
-        <h2>Result</h2>
-        <div id="result"></div>
+        <h2>Forecast Result</h2>
+        <div id="result">No results yet.</div>
     </div>
 
 </div>
 
+<!-- IMPORTANT: JS MUST BE AT BOTTOM -->
 <script src="script.js"></script>
 
 </body>

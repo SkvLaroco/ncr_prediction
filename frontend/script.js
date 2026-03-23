@@ -1,32 +1,54 @@
 async function runForecast() {
+
+    console.log("Button clicked");
+
     let fileInput = document.getElementById("file");
 
+    // Check file
     if (!fileInput.files.length) {
-        alert("Please upload a CSV file.");
+        alert("Please upload a CSV file first.");
         return;
     }
 
     let formData = new FormData();
     formData.append("file", fileInput.files[0]);
 
-    let response = await fetch("https://ncr-prediction.onrender.com", {
-        method: "POST",
-        body: formData
-    });
+    try {
 
-    let data = await response.json();
+        // 🔥 IMPORTANT: Replace with YOUR Render URL
+        let response = await fetch("https://ncr-prediction.onrender.com", {
+            method: "POST",
+            body: formData
+        });
 
-    if (data.error) {
-        document.getElementById("result").innerHTML = "❌ " + data.error;
-        return;
+        let data = await response.json();
+
+        if (data.error) {
+            document.getElementById("result").innerHTML = "❌ " + data.error;
+            return;
+        }
+
+        document.getElementById("result").innerHTML = `
+            <h3>Forecast Output</h3>
+
+            <b>Year:</b> ${data.year}<br>
+            <b>Projected Enrollees:</b> ${data.enrollees}<br><br>
+
+            <h4>Resource Allocation</h4>
+            🏫 Academic Rooms: ${data.academic_rooms}<br>
+            🏫 TVL Rooms: ${data.tvl_rooms}<br><br>
+
+            👩‍🏫 Academic Teachers: ${data.academic_teachers}<br>
+            👩‍🏫 TVL Teachers: ${data.tvl_teachers}
+        `;
+
+    } catch (error) {
+
+        console.error(error);
+
+        document.getElementById("result").innerHTML = `
+            ❌ Failed to connect to server.<br>
+            Please check your backend deployment.
+        `;
     }
-
-    document.getElementById("result").innerHTML = `
-        <b>Year:</b> ${data.year}<br>
-        <b>Enrollees:</b> ${data.enrollees}<br><br>
-        <b>Academic Rooms:</b> ${data.academic_rooms}<br>
-        <b>TVL Rooms:</b> ${data.tvl_rooms}<br><br>
-        <b>Academic Teachers:</b> ${data.academic_teachers}<br>
-        <b>TVL Teachers:</b> ${data.tvl_teachers}
-    `;
 }

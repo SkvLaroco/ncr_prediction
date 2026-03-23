@@ -7,30 +7,47 @@ import os
 app = Flask(__name__)
 CORS(app)
 
+# ✅ ROOT ROUTE (TEST)
 @app.route('/')
 def home():
-    return "API is working"
+    return "✅ NCR Forecast API is running"
 
-@app.route('/forecast', methods=['POST'])
+# ✅ FORECAST ROUTE (NOW SUPPORTS GET + POST)
+@app.route('/forecast', methods=['GET', 'POST'])
 def forecast():
+
+    # 👉 If accessed via browser (GET)
+    if request.method == 'GET':
+        return "⚠️ Use POST method with a CSV file to get forecast."
+
     try:
+        # ✅ CHECK FILE
+        if 'file' not in request.files:
+            return jsonify({"error": "No file uploaded"}), 400
+
         file = request.files['file']
         df = pd.read_csv(file)
 
-        # VALIDATION
-        if 'Year' not in df.columns or 'Total_Enrollees' not in df.columns:
-            return jsonify({"error": "Dataset must contain Year and Total_Enrollees"}), 400
+        # ✅ VALIDATE COLUMNS
+        required_cols = ['Year', 'Total_Enrollees']
+        for col in required_cols:
+            if col not in df.columns:
+                return jsonify({"error": f"Missing column: {col}"}), 400
 
-        if not pd.api.types.is_numeric_dtype(df['Year']) or not pd.api.types.is_numeric_dtype(df['Total_Enrollees']):
-            return jsonify({"error": "Columns must be numeric"}), 400
+        # ✅ VALIDATE NUMERIC
+        if not pd.api.types.is_numeric_dtype(df['Year']):
+            return jsonify({"error": "Year must be numeric"}), 400
 
-        # PREPARE DATA
+        if not pd.api.types.is_numeric_dtype(df['Total_Enrollees']):
+            return jsonify({"error": "Total_Enrollees must be numeric"}), 400
+
+        # ✅ PREPARE DATA
         df['ds'] = pd.to_datetime(df['Year'], format='%Y')
         df['y'] = df['Total_Enrollees']
 
-        # MODEL
+        # ✅ TRAIN MODEL
         model = Prophet()
-        model.fit(df[['ds','y']])
+        model.fit(df[['ds', 'y']])
 
         future = model.make_future_dataframe(periods=3, freq='YE')
         forecast = model.predict(future)
@@ -38,23 +55,26 @@ def forecast():
         latest = forecast.iloc[-1]
         total = int(latest['yhat'])
 
-        # RESOURCE ALLOCATION
+        # ✅ RESOURCE ALLOCATION
         academic_rooms = int((total * 0.65) / 40)
         tvl_rooms = int((total * 0.35) / 40)
 
-        return jsonify({
+        result = {
             "year": str(latest['ds'])[:4],
             "enrollees": total,
             "academic_rooms": academic_rooms,
             "tvl_rooms": tvl_rooms,
             "academic_teachers": academic_rooms,
             "tvl_teachers": tvl_rooms
-        })
+        }
+
+        return jsonify(result)
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
 
+# ✅ IMPORTANT FOR RENDER
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 10000))
     app.run(host='0.0.0.0', port=port)

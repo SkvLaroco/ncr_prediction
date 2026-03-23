@@ -24,10 +24,8 @@ async function runForecast() {
     document.getElementById("result").innerHTML = `
         <b>Year:</b> ${data.year}<br>
         <b>Enrollees:</b> ${data.enrollees}<br><br>
-
         <b>Academic Rooms:</b> ${data.academic_rooms}<br>
         <b>TVL Rooms:</b> ${data.tvl_rooms}<br><br>
-
         <b>Academic Teachers:</b> ${data.academic_teachers}<br>
         <b>TVL Teachers:</b> ${data.tvl_teachers}
     `;

@@ -9,7 +9,7 @@ async function runForecast() {
     let formData = new FormData();
     formData.append("file", fileInput.files[0]);
 
-    let response = await fetch("https://your-render-url.onrender.com/forecast", {
+    let response = await fetch("https://ncr-prediction.onrender.com", {
         method: "POST",
         body: formData
     });

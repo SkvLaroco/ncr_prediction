@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>NCR SHS Forecast System</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<h1>NCR SHS Forecast Dashboard</h1>
+
+<div class="container">
+
+    <div class="card">
+        <h2>Upload Dataset</h2>
+        <input type="file" id="file" accept=".csv">
+        <button onclick="runForecast()">Run Forecast</button>
+
+        <p><b>Required format:</b></p>
+        <pre>
+Year,Total_Enrollees
+2020,300000
+2021,320000
+        </pre>
+    </div>
+
+    <div class="card">
+        <h2>Result</h2>
+        <div id="result"></div>
+    </div>
+
+</div>
+
+<script src="script.js"></script>
+
+</body>
+</html>

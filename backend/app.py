@@ -71,5 +71,5 @@ def forecast():
 
 # ✅ Run Render-ready
 if __name__ == "__main__":
-    port = int(os.environ["PORT"])  # 🔥 must use Render-provided PORT
+    port = int(os.environ["10000"])  # 🔥 must use Render-provided PORT
     app.run(host='0.0.0.0', port=port)
